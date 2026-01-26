@@ -15,11 +15,7 @@ import {
 
 export const registerUser = async (req: Request, res: Response) => {
   try {
-    const { username, email, password, country, age } = req.body;
-
-    if (!username || !email || !password) {
-      throw new ApiError(400, "username, email and passowrd are required");
-    }
+    const { username, email, password, country, age, role } = req.body;
 
     const existingUser = await prisma.user.findUnique({
       where: { email },
