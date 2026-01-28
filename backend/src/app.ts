@@ -6,6 +6,7 @@ dotenv.config({
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import userRouter from "./routes/user.route";
+import categoryRouter from "./routes/category.route";
 
 const app = express();
 
@@ -29,5 +30,6 @@ app.get("/", (req: Request, res: Response) => {
 
 // routes
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/category", categoryRouter);
 
 export default app;

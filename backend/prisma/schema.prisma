@@ -12,22 +12,69 @@ datasource db {
   provider = "postgresql"
 }
 
+// user role enum
 enum UserRole {
   USER
   ADMIN
 }
 
+// user model
 model User{
-  id              Int                          @id @default(autoincrement())
-  username        String @db.VarChar(255)
-  email           String @db.VarChar(255)      @unique
+  id              Int                        @id @default(autoincrement())
+  username        String @db.VarChar(255)    @unique
+  email           String @db.VarChar(255)    @unique
   password        String @db.VarChar(255)
   country         String?
   age             Int?
-  role            UserRole                      @default(USER)
-  createdAt       DateTime                      @default(now())
-  updatedAt       DateTime                      @updatedAt()
+  role            UserRole                   @default(USER)
+  createdAt       DateTime                   @default(now())
+  updatedAt       DateTime                   @updatedAt()
   refreshToken    String?
 
+  // relations
+  todos Todo[]
+  categories Category[]
+
   @@index([role])
+}
+
+// category model
+model Category{
+  id            Int                            @id @default(autoincrement())
+  name          String    @db.VarChar(100)
+  color         String?   @db.VarChar(20)      @default("#0000FF")
+  userId        Int
+  createdAt     DateTime                       @default(now())
+  updatedAt     DateTime                       @updatedAt()
+
+  // relations
+  user          User                           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  todos         Todo[]
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+
+// Todo model
+model Todo{
+  id          Int                            @id @default(autoincrement())
+  title       String    @db.VarChar(255)
+  description String?   @db.Text
+  completed   Boolean                            @default(false)
+  dueDate     DateTime?
+  userId      Int
+  categoryId  Int?
+  createdAt   DateTime                           @default(now())
+  updatedAt   DateTime                           @updatedAt()
+
+  // relations
+  user        User                            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category    Category?                       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  
+
+  @@index([userId])
+  @@index([categoryId])
+  @@index([completed])
+  @@index([dueDate])
 }

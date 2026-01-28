@@ -18,3 +18,20 @@ export const registerUserSchema = z
   .strict();
 
 export type RegisterUserInput = z.infer<typeof registerUserSchema>;
+
+export const loginUserSchema = z
+  .object({
+    email: z.email("invalid email address").optional(),
+    username: z.string().optional(),
+    password: z.string(),
+  })
+  .refine((data) => data.email || data.username, {
+    message: "either email or username is required",
+    path: ["email"],
+  })
+  .refine((d) => !(d.email && d.username), {
+    message: "provide either email or username, not both",
+  })
+  .strict();
+
+export type LoginUserInput = z.infer<typeof loginUserSchema>;
