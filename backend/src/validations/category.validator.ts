@@ -15,3 +15,23 @@ export const createCategorySchema = z
   .strict();
 
 export type CreateCategoryInput = z.infer<typeof createCategorySchema>;
+
+export const updateCategorySchema = z
+  .object({
+    name: z
+      .string()
+      .min(1, "category name is required")
+      .max(100, "Category name must be at most 100 characters")
+      .optional(),
+
+    color: z
+      .string()
+      .max(20, "color code must be at most 20 characters")
+      .optional(),
+  })
+  .refine((d) => d.name || d.color, {
+    message: "provide either name or color to update",
+  })
+  .strict();
+
+export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>;

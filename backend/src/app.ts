@@ -7,6 +7,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import userRouter from "./routes/user.route";
 import categoryRouter from "./routes/category.route";
+import todoRouter from "./routes/todo.route";
 
 const app = express();
 
@@ -31,5 +32,6 @@ app.get("/", (req: Request, res: Response) => {
 // routes
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/category", categoryRouter);
+app.use("/api/v1/todo", todoRouter);
 
 export default app;
