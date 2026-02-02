@@ -9,8 +9,16 @@ import {
   loginUserSchema,
   type LoginUserFormData,
 } from "@/validations/auth.schema";
+import { useState } from "react";
+import { loginUser } from "@/api/auth.api";
+import { saveToLocalStorage } from "@/utils/helpers";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setUser } from "@/store/slices/authSlice";
 
 const LoginUserForm = () => {
+  const dispatch = useDispatch();
   const {
     register,
     handleSubmit,
@@ -19,9 +27,27 @@ const LoginUserForm = () => {
   } = useForm<LoginUserFormData>({
     resolver: zodResolver(loginUserSchema),
   });
+  const [loading, setLoading] = useState<boolean>(false);
+  const [serverError, setServerError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const onSubmit = async (data: LoginUserFormData) => {
-    console.log(data);
+    // console.log(data);
+    try {
+      setLoading(true);
+      const userData = await loginUser(data);
+      saveToLocalStorage("accessToken", userData.accessToken);
+      saveToLocalStorage("refreshToken", userData.refreshToken);
+      dispatch(setUser(userData.user));
+      toast.success("Logged in successfully");
+      reset();
+      navigate("/");
+    } catch (error: any) {
+      setServerError(error.message);
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <Card className="w-full max-w-130 bg-blue-300 shadow-2xl">

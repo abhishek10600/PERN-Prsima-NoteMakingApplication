@@ -13,8 +13,12 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { registerUser } from "@/api/auth.api";
 import { useNavigate } from "react-router-dom";
+import { saveToLocalStorage } from "@/utils/helpers";
+import { useDispatch } from "react-redux";
+import { setUser } from "@/store/slices/authSlice";
 
 const RegisterUserForm = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -31,7 +35,10 @@ const RegisterUserForm = () => {
     // console.log(data);
     try {
       setLoading(true);
-      const response = await registerUser(data);
+      const userData = await registerUser(data);
+      saveToLocalStorage("accessToken", userData.accessToken);
+      saveToLocalStorage("refreshToken", userData.refreshToken);
+      dispatch(setUser(userData.user));
       toast.success("Account created successfully");
       reset();
       navigate("/");
