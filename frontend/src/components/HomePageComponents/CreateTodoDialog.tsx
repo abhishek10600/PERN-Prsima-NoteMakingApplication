@@ -79,25 +79,31 @@ const CreateTodoDialog = ({ onCreated }: { onCreated: () => void }) => {
           <DialogTitle>Create Todo</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4 flex flex-col gap-2"
+        >
           {/* Title */}
-          <div>
+          <div className="flex flex-col gap-2">
             <Label>Title</Label>
-            <Input {...register("title")} />
+            <Input {...register("title")} placeholder="Create Title" />
             {errors.title && (
               <p className="text-red-500 text-sm">{errors.title.message}</p>
             )}
           </div>
 
           {/* Description */}
-          <div>
-            <Label>Description</Label>
-            <Input {...register("description")} />
+          <div className="flex flex-col gap-2">
+            <Label>Description (Optional)</Label>
+            <Input
+              {...register("description")}
+              placeholder="Create Description"
+            />
           </div>
 
           {/* Due Date */}
-          <div>
-            <Label>Due Date</Label>
+          <div className="flex flex-col gap-2">
+            <Label>Due Date (Optional)</Label>
             <Input type="datetime-local" {...register("dueDate")} />
             {errors.dueDate && (
               <p className="text-red-500 text-sm">{errors.dueDate.message}</p>
@@ -105,8 +111,8 @@ const CreateTodoDialog = ({ onCreated }: { onCreated: () => void }) => {
           </div>
 
           {/* Category */}
-          <div>
-            <Label>Category</Label>
+          <div className="flex flex-col gap-2">
+            <Label>Category (Optional)</Label>
             <Select
               onValueChange={(value) =>
                 setValue("categoryId", value, {
