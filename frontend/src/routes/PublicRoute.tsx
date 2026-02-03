@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
-import { useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import type { JSX } from "react";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -9,7 +9,6 @@ interface Props {
 }
 
 const PublicRoute = ({ children }: Props) => {
-  const navigate = useNavigate();
   const { isAuthenticated, loading } = useSelector(
     (state: RootState) => state.auth,
   );
@@ -19,7 +18,7 @@ const PublicRoute = ({ children }: Props) => {
   }
 
   if (isAuthenticated) {
-    return navigate("/", { replace: true });
+    return <Navigate to="/" replace />;
   }
 
   return children;
