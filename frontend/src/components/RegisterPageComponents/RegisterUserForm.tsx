@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { saveToLocalStorage } from "@/utils/helpers";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/store/slices/authSlice";
+import { Spinner } from "../ui/spinner";
 
 const RegisterUserForm = () => {
   const dispatch = useDispatch();
@@ -112,7 +113,7 @@ const RegisterUserForm = () => {
           </div>
           <div className="grid gap-2">
             <Button type="submit" className="cursor-pointer bg-primary">
-              {loading ? "Loading" : "Register"}
+              {loading ? <Spinner /> : "Register"}
             </Button>
           </div>
         </form>

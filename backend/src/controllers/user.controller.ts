@@ -97,7 +97,7 @@ export const loginUser = async (req: Request, res: Response) => {
       throw new ApiError(401, "invalid credentials");
     }
 
-    const checkPassword = isPasswordCorrect(password, user.password);
+    const checkPassword = await isPasswordCorrect(password, user.password);
 
     if (!checkPassword) {
       throw new ApiError(401, "invalid credentials");

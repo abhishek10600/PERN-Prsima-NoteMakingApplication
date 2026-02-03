@@ -9,7 +9,7 @@ export const createTodoSchema = z.object({
     .refine((val) => !val || !isNaN(Date.parse(val)), {
       message: "dueDate must be a valid date",
     }),
-  categoryId: z.number().int().optional(),
+  categoryId: z.coerce.number().int().optional(),
 });
 
 export type CreateTodoInput = z.infer<typeof createTodoSchema>;
@@ -25,7 +25,7 @@ export const updateTodoSchema = z
       .refine((val) => !val || !isNaN(Date.parse(val)), {
         message: "dueDate must be a valid date",
       }),
-    categoryId: z.number().int().positive().optional(),
+    categoryId: z.coerce.number().int().positive().optional(),
   })
   .refine(
     (data) =>

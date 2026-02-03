@@ -1,50 +1,50 @@
-import { logoutUser } from "@/api/auth.api";
-import { logout } from "@/store/slices/authSlice";
+import { getUserTodos } from "@/api/todo.api";
+import Navbar from "@/components/General/Navbar";
+import Todo from "@/components/HomePageComponents/Todo";
+import CreateTodoDialog from "@/components/HomePageComponents/CreateTodoDialog";
 import type { RootState } from "@/store/store";
-import { getFromLocalStorage, removeFromLocalStorage } from "@/utils/helpers";
-import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import type { TodoType } from "@/types/todo";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 const HomePage = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
   const user = useSelector((state: RootState) => state.auth.user);
-  const [serverError, setServerError] = useState<string | null>(null);
-  const handleLogout = async () => {
+  const [loading, setLoading] = useState(true);
+  const [todos, setTodos] = useState<TodoType[]>([]);
+
+  const fetchTodos = async () => {
     try {
-      const token = getFromLocalStorage("accessToken");
-      if (!token) {
-      } else {
-        const response = await logoutUser();
-        removeFromLocalStorage("accessToken");
-        dispatch(logout());
-        toast.success(response.message);
-        navigate("/login");
-      }
-    } catch (error: any) {
-      setServerError(error.message);
-      toast.error(error.message);
+      const response = await getUserTodos();
+      setTodos(response);
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchTodos();
+  }, []);
+
   return (
     <div>
-      {user ? (
-        <>
-          {`Welcome - ${user?.username}`}
-          <button
-            onClick={handleLogout}
-            className="bg-red-500 px-4 py-1 rounded-xl cursor-pointer"
-          >
-            Logout
-          </button>
-        </>
-      ) : (
-        <>
-          <h1>You are not logged in</h1>
-        </>
-      )}
+      <Navbar />
+      <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold">Hi {user?.username}</h1>
+          <CreateTodoDialog onCreated={fetchTodos} />
+        </div>
+
+        {loading && <p>Loading todos...</p>}
+        {!loading && todos.length === 0 && (
+          <p className="text-muted-foreground">No todos yet.</p>
+        )}
+
+        <div className="grid gap-4">
+          {todos.map((todo) => (
+            <Todo key={todo.id} todo={todo} />
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

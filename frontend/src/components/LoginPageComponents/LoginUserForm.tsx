@@ -16,6 +16,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/store/slices/authSlice";
+import { Spinner } from "../ui/spinner";
 
 const LoginUserForm = () => {
   const dispatch = useDispatch();
@@ -95,8 +96,12 @@ const LoginUserForm = () => {
             </Link>
           </div>
           <div className="grid gap-2">
-            <Button type="submit" className="cursor-pointer bg-primary">
-              Login
+            <Button
+              disabled={loading}
+              type="submit"
+              className="cursor-pointer bg-primary"
+            >
+              {loading ? <Spinner /> : "Login"}
             </Button>
           </div>
         </form>

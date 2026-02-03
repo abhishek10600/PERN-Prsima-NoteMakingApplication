@@ -286,7 +286,7 @@ export const updateUserTodo = async (req: Request, res: Response) => {
 
     return res
       .status(200)
-      .json(new ApiResponse(200, updateUserTodo, "todo updated successfully"));
+      .json(new ApiResponse(200, updatedTodo, "todo updated successfully"));
   } catch (error: unknown) {
     console.error("Regsiter User Error: ", error);
 
