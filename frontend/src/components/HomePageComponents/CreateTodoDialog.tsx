@@ -25,14 +25,20 @@ import {
   type CreateTodoFormData,
 } from "@/validations/todo.schema";
 import { createTodo } from "@/api/todo.api";
-import { getUserCategories } from "@/api/category.api";
+import { getUserCategories, createCategory } from "@/api/category.api";
 import type { CategoryType } from "@/types/category";
 import { Spinner } from "../ui/spinner";
 import { PlusCircleIcon } from "lucide-react";
+import { toast } from "react-toastify";
 
 const CreateTodoDialog = ({ onCreated }: { onCreated: () => void }) => {
   const [categories, setCategories] = useState<CategoryType[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
+
+  const [showCreateCategory, setShowCreateCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCategoryColor, setNewCategoryColor] = useState("#22c55e");
+  const [creatingCategory, setCreatingCategory] = useState(false);
 
   const {
     register,
@@ -50,17 +56,42 @@ const CreateTodoDialog = ({ onCreated }: { onCreated: () => void }) => {
     },
   });
 
+  const fetchCategories = async () => {
+    const data = await getUserCategories();
+    setCategories(data);
+    setLoadingCategories(false);
+  };
+
   useEffect(() => {
-    const fetchCategories = async () => {
-      const data = await getUserCategories();
-      setCategories(data);
-      setLoadingCategories(false);
-    };
     fetchCategories();
   }, []);
 
+  const handleCreateCategory = async () => {
+    if (!newCategoryName.trim()) return alert("Category name is required");
+
+    try {
+      setCreatingCategory(true);
+      const newCat = await createCategory({
+        name: newCategoryName,
+        color: newCategoryColor,
+      });
+
+      toast.success("New Category Created");
+
+      setCategories((prev) => [...prev, newCat]);
+      setValue("categoryId", String(newCat.id), { shouldValidate: true });
+
+      setNewCategoryName("");
+      setNewCategoryColor("#22c55e");
+      setShowCreateCategory(false);
+    } finally {
+      setCreatingCategory(false);
+    }
+  };
+
   const onSubmit = async (data: CreateTodoFormData) => {
     await createTodo(data);
+    toast.success("Todo created");
     reset();
     onCreated();
   };
@@ -68,8 +99,8 @@ const CreateTodoDialog = ({ onCreated }: { onCreated: () => void }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="bg-green-600 cursor-pointer hover:bg-green-800 flex items-center justify-center">
-          <PlusCircleIcon />
+        <Button className="bg-green-600 cursor-pointer hover:bg-green-800 flex items-center gap-2">
+          <PlusCircleIcon size={18} />
           Add Todo
         </Button>
       </DialogTrigger>
@@ -110,29 +141,79 @@ const CreateTodoDialog = ({ onCreated }: { onCreated: () => void }) => {
             )}
           </div>
 
-          {/* Category */}
+          {/* Category Select */}
           <div className="flex flex-col gap-2">
             <Label>Category (Optional)</Label>
+
             <Select
-              onValueChange={(value) =>
-                setValue("categoryId", value, {
-                  shouldValidate: true,
-                })
-              }
+              onValueChange={(value) => {
+                if (value === "__create__") {
+                  setShowCreateCategory(true);
+                } else {
+                  setValue("categoryId", value, { shouldValidate: true });
+                }
+              }}
               disabled={loadingCategories}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select category (optional)" />
               </SelectTrigger>
+
               <SelectContent>
                 {categories.map((cat) => (
                   <SelectItem key={cat.id} value={String(cat.id)}>
                     {cat.name}
                   </SelectItem>
                 ))}
+
+                <SelectItem value="__create__">
+                  + Create new category
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
+
+          {/* Inline Create Category */}
+          {showCreateCategory && (
+            <div className="border rounded-lg p-3 space-y-3 bg-muted">
+              <div className="flex flex-col gap-2">
+                <Label>New Category Name</Label>
+                <Input
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  placeholder="Work, Personal, Gym..."
+                />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Label>Color</Label>
+                <Input
+                  type="color"
+                  value={newCategoryColor}
+                  onChange={(e) => setNewCategoryColor(e.target.value)}
+                  className="h-10 p-1"
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  onClick={handleCreateCategory}
+                  disabled={creatingCategory}
+                >
+                  {creatingCategory ? <Spinner /> : "Create Category"}
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setShowCreateCategory(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
 
           <Button
             type="submit"

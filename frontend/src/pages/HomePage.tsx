@@ -1,11 +1,11 @@
 import { getUserTodos } from "@/api/todo.api";
 import Navbar from "@/components/General/Navbar";
-import Todo from "@/components/HomePageComponents/Todo";
 import CreateTodoDialog from "@/components/HomePageComponents/CreateTodoDialog";
 import type { RootState } from "@/store/store";
 import type { TodoType } from "@/types/todo";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import TodoItem from "@/components/HomePageComponents/TodoItem";
 
 const HomePage = () => {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -41,7 +41,7 @@ const HomePage = () => {
 
         <div className="grid gap-4">
           {todos.map((todo) => (
-            <Todo key={todo.id} todo={todo} />
+            <TodoItem key={todo.id} todo={todo} onRefresh={fetchTodos} />
           ))}
         </div>
       </div>
